@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fridge Scale</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1.5rem; padding: 1.5rem;
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #f4f1e9; color: #24221d;
+  }
+  @media (prefers-color-scheme: dark) { body { background: #16150f; color: #ece7d8; } }
+  h1 { font-size: 1.1rem; font-weight: 600; margin: 0; opacity: .7; }
+  #readout {
+    font-size: 22vw; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 600px) { #readout { font-size: 8rem; } }
+  #unit { font-size: .35em; opacity: .5; margin-left: .1em; }
+  #status { font-size: .95rem; opacity: .65; min-height: 1.2em; }
+  .row { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+  button {
+    font-size: 1rem; font-weight: 600; padding: .8rem 1.4rem; border-radius: 999px;
+    border: none; cursor: pointer; background: #2e8b57; color: #fff;
+  }
+  button.secondary { background: transparent; border: 2px solid currentColor; color: inherit; }
+  button:disabled { opacity: .4; cursor: default; }
+  #warn { font-size: .8rem; opacity: .55; max-width: 22rem; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Fridge Scale</h1>
+  <div id="readout"><span id="val">––</span><span id="unit">g</span></div>
+  <div id="status">Not connected</div>
+  <div class="row">
+    <button id="connect">Connect</button>
+    <button id="zero" class="secondary" disabled>Zero</button>
+  </div>
+  <div id="warn">Needs Chrome/Edge on desktop or Android (Web Bluetooth). Served over https:// or localhost.</div>
+
+<script>
+  // Must match weigh_ble.py exactly.
+  const SVC = "5f6d0001-1e2d-4b3a-9c8f-0a1b2c3d4e5f";
+  const CHR = "5f6d0002-1e2d-4b3a-9c8f-0a1b2c3d4e5f";
+
+  const valEl = document.getElementById("val");
+  const statusEl = document.getElementById("status");
+  const connectBtn = document.getElementById("connect");
+  const zeroBtn = document.getElementById("zero");
+
+  let device = null, characteristic = null;
+  let raw = null;        // last grams from device
+  let tare = 0;          // software zero offset (app-side)
+
+  function setStatus(t) { statusEl.textContent = t; }
+  function render() {
+    if (raw === null) { valEl.textContent = "––"; return; }
+    valEl.textContent = (raw - tare).toFixed(1);
+  }
+
+  async function connect() {
+    if (!navigator.bluetooth) { setStatus("Web Bluetooth not supported in this browser"); return; }
+    try {
+      setStatus("Requesting device…");
+      device = await navigator.bluetooth.requestDevice({
+        filters: [{ services: [SVC] }],
+        optionalServices: [SVC],
+      });
+      device.addEventListener("gattserverdisconnected", onDisconnected);
+      setStatus("Connecting…");
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService(SVC);
+      characteristic = await service.getCharacteristic(CHR);
+      await characteristic.startNotifications();
+      characteristic.addEventListener("characteristicvaluechanged", onData);
+      setStatus("Connected");
+      connectBtn.textContent = "Disconnect";
+      zeroBtn.disabled = false;
+    } catch (e) {
+      setStatus("Error: " + e.message);
+    }
+  }
+
+  function onData(e) {
+    const txt = new TextDecoder().decode(e.target.value);
+    const g = parseFloat(txt);
+    if (!Number.isNaN(g)) { raw = g; render(); }
+  }
+
+  function onDisconnected() {
+    setStatus("Disconnected");
+    connectBtn.textContent = "Connect";
+    zeroBtn.disabled = true;
+    raw = null; render();
+  }
+
+  connectBtn.addEventListener("click", () => {
+    if (device && device.gatt.connected) { device.gatt.disconnect(); }
+    else { connect(); }
+  });
+  zeroBtn.addEventListener("click", () => { if (raw !== null) { tare = raw; render(); } });
+</script>
+</body>
+</html>
