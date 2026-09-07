@@ -47,13 +47,20 @@ To prove the Pico-to-computer path with no HX711 attached:
     mpremote connect auto run firmware/mock_serial.py
 
 To send that simulated stream into the web interface over USB, temporarily
-install the mock as the Pico startup program, then select **Connect USB**:
+install the mock as the Pico startup program, then select **Connect USB**.
+First list the board files. If `main.py` already exists, copy it back to the
+Mac before replacing it:
 
+    mpremote connect auto fs ls
+    mpremote connect auto fs cp :main.py main.py.pico-backup
     mpremote connect auto fs cp firmware/mock_serial.py :main.py
     mpremote connect auto reset
 
-Remove the temporary startup program after testing:
+Restore the backup after testing. If there was no previous `main.py`, remove
+the temporary file instead:
 
+    mpremote connect auto fs cp main.py.pico-backup :main.py
+    # OR, only if no main.py existed before the test:
     mpremote connect auto fs rm :main.py
 
 ## Current calibration
