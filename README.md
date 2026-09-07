@@ -33,6 +33,29 @@ Bluetooth LE → web app. Working end-to-end as of 2026-07-21.
     # test the app locally (Web Bluetooth needs localhost or https)
     python3 -m http.server 8000    # then http://localhost:8000/app/
 
+## Develop without the load cell
+
+The web interface has a **Run demo** mode that generates a settling signal in
+the browser. No Pico or sensor is required:
+
+    python3 -m http.server 8000
+
+Open `http://localhost:8000/app/` in Chrome or Edge and select **Run demo**.
+
+To prove the Pico-to-computer path with no HX711 attached:
+
+    mpremote connect auto run firmware/mock_serial.py
+
+To send that simulated stream into the web interface over USB, temporarily
+install the mock as the Pico startup program, then select **Connect USB**:
+
+    mpremote connect auto fs cp firmware/mock_serial.py :main.py
+    mpremote connect auto reset
+
+Remove the temporary startup program after testing:
+
+    mpremote connect auto fs rm :main.py
+
 ## Current calibration
 
 offset −7259, scale 603.44 counts/gram (50.0 g = 10 US nickels; verified
