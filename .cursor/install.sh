@@ -29,11 +29,13 @@ echo "==> Installing firmware tooling (mpremote)"
 python -m pip install --upgrade pip >/dev/null
 python -m pip install mpremote
 
-# --- Sanity: firmware files are syntactically valid Python (byte-compile
+# --- Sanity: firmware + tools are syntactically valid Python (byte-compile
 # --- only; hardware-only modules are not imported here). ---
-echo "==> Byte-compiling firmware/*.py"
-python -m py_compile firmware/*.py
+echo "==> Byte-compiling firmware/*.py and tools/*.py"
+python -m py_compile firmware/*.py tools/*.py
 
 echo "==> Setup complete."
-echo "    Web app : http://localhost:8000/app/  (served by the 'web-app' terminal)"
-echo "    Firmware: 'source .venv/bin/activate' then 'mpremote connect list'"
+echo "    Web app  : http://localhost:8000/app/       (served by the 'web-app' terminal)"
+echo "    Web demo : http://localhost:8000/app/?demo   (simulated scale, no BLE)"
+echo "    Firmware : 'source .venv/bin/activate' then 'mpremote connect list'"
+echo "    Board sim: 'python tools/scale_sim.py --items 342.5 1015'"

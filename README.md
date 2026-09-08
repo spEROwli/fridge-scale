@@ -33,6 +33,19 @@ Bluetooth LE → web app. Working end-to-end as of 2026-07-21.
     # test the app locally (Web Bluetooth needs localhost or https)
     python3 -m http.server 8000    # then http://localhost:8000/app/
 
+## Quick start (no hardware — Cloud Agent / CI / offline)
+
+A remote/CI machine has no USB, BLE, or load cell, so the firmware can't run
+there. Use the simulator and the app's demo mode instead:
+
+    bash .cursor/install.sh                 # venv + mpremote + syntax checks
+    python3 -m http.server 8000             # serve the app (or the 'web-app' terminal)
+
+    # simulated board: emits the frozen weight-event JSON (see docs/HANDOFF.md)
+    python3 tools/scale_sim.py --items 342.5 1015
+
+    # web UI without BLE: open http://localhost:8000/app/?demo
+
 ## Current calibration
 
 offset −7259, scale 603.44 counts/gram (50.0 g = 10 US nickels; verified
