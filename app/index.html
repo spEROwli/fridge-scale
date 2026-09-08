@@ -102,6 +102,26 @@
     else { connect(); }
   });
   zeroBtn.addEventListener("click", () => { if (raw !== null) { tare = raw; render(); } });
+
+  // --- Local demo mode (no hardware) --------------------------------------
+  // Visiting /app/?demo drives the readout from a simulated scale so the UI
+  // can be exercised without a BLE device (Cloud Agent VM / CI / offline demo).
+  // It does NOT touch the real Web Bluetooth path above. The board-side event
+  // simulator lives in tools/scale_sim.py.
+  if (new URLSearchParams(location.search).has("demo")) {
+    setStatus("Demo mode — simulated scale (no BLE)");
+    connectBtn.textContent = "Demo";
+    connectBtn.disabled = true;
+    zeroBtn.disabled = false;
+    const target = 342.5;                 // simulated item mass (grams)
+    const t0 = Date.now();
+    setInterval(() => {
+      const elapsed = (Date.now() - t0) / 1000;
+      const base = elapsed < 2.5 ? 0 : target;      // empty, then item placed
+      raw = base + (Math.random() - 0.5) * (base ? 1.0 : 0.4);
+      render();
+    }, 300);
+  }
 </script>
 </body>
 </html>
