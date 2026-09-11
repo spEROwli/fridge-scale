@@ -1,22 +1,8 @@
 #!/usr/bin/env python3
-"""scale_sim.py — simulate the Fridge Scale board with NO hardware attached.
+"""scale_sim.py — DEMO DATA only. Not sensor readings; not the firmware path.
 
-A Cloud Agent VM (and CI) has no USB, no BLE, and no load cell, so the real
-firmware in ``firmware/`` cannot run here. This simulator stands in for the
-board: it drives a synthetic weight trace through the SAME state-machine logic
-as ``firmware/weigh_events.py`` and emits the identical, frozen event contract
-(see docs/HANDOFF.md §"Event schema"). It lets the event pipeline / app be
-exercised end-to-end without the physical Pico 2 W.
-
-Two output modes:
-
-  events  (default)  newline-delimited JSON, exactly like weigh_events.py:
-                       {"event":"ready", ...}
-                       {"event":"status","g":...,"state":"armed", ...}
-                       {"event":"weight","grams":342.5,"stable":true, ...}
-  grams              plain "%.1f" grams per line, like the BLE characteristic
-                     payload broadcast by weigh_ble.py / the serial stream in
-                     weigh.py — handy for piping into a bridge.
+Synthetic grams / JSON so the UI can be exercised with no Pico, USB, or BLE.
+Does not prove the 1 kg fixture or a 10 kg assembly. See README.
 
 Examples
 --------
@@ -37,7 +23,7 @@ import random
 import sys
 import time
 
-# --- Tuning mirrors firmware/weigh_events.py (grams). ---
+# --- Tuning (grams). Demo only. ---
 LOAD_THRESHOLD = 10.0   # min load to treat as "an item is on the scale"
 RETURN_BAND = 5.0       # within +/- this of zero = "empty again" -> re-arm
 STABLE_TOL = 2.0        # settled when the reading window spans less than this
@@ -47,8 +33,8 @@ REARM_N = 8             # consecutive near-zero samples to re-arm
 HEARTBEAT_S = 2.0       # emit a status event this often (0 disables)
 
 
-def load_calib(path: str = "calib.json") -> tuple[float, float, bool]:
-    """Return (offset, scale, calibrated) — same shape weigh_events.py uses."""
+def load_calib(path: str = "calib.example.json") -> tuple[float, float, bool]:
+    """Return (offset, scale, calibrated) from an example or local calib file."""
     try:
         with open(path) as f:
             c = json.load(f)
@@ -61,7 +47,7 @@ class FakeCell:
     """Synthetic HX711 + load cell: turns a target mass (grams) into raw counts.
 
     raw = offset + grams * scale + gaussian_noise, so the simulator produces
-    exactly the kind of samples weigh_events.py consumes from real hardware.
+    a synthetic HX711-shaped count stream (demo data).
     """
 
     def __init__(self, offset: float, scale: float, noise_counts: float, rng: random.Random):
@@ -96,7 +82,7 @@ def build_trace(items: list[float]) -> list[tuple[float, float]]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Simulate the Fridge Scale board (no hardware).")
     ap.add_argument("--mode", choices=["events", "grams"], default="events",
-                    help="events = weigh_events.py JSON (default); grams = plain grams stream")
+                    help="events = JSON demo stream (default); grams = plain grams stream")
     ap.add_argument("--items", type=float, nargs="*", default=[342.5],
                     help="masses in grams to place, one after another")
     ap.add_argument("--device", default="fridge-scale-sim", help="device id in events")
@@ -105,7 +91,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--noise-counts", type=float, default=250.0,
                     help="raw-count noise stddev (~250 matches the real bench baseline)")
     ap.add_argument("--seed", type=int, default=None, help="RNG seed for reproducible runs")
-    ap.add_argument("--calib", default="calib.json", help="path to calibration record")
+    ap.add_argument("--calib", default="calib.example.json",
+                    help="example calib in git; real calib.json is gitignored")
     args = ap.parse_args(argv)
 
     rng = random.Random(args.seed)
@@ -114,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     dt = SAMPLE_DT / args.speed if args.speed > 0 else 0.0
 
     def emit_event(evt: dict) -> None:
-        # SINGLE output point, mirroring weigh_events.py's emit().
+        # SINGLE output point.
         print(json.dumps(evt), flush=True)
 
     # Simulated device clock (like the Pico's ticks_ms): advances by SAMPLE_DT

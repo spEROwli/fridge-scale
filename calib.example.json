@@ -1,0 +1,9 @@
+{
+  "offset": -7259,
+  "scale": 603.4384,
+  "known_g": 50.0,
+  "reference": "10 US nickels @ 5.00 g = 50.0 g",
+  "fixture": "1kg bar cell, cantilever in vise, U-channel as hook (tension); bag tared out",
+  "verified_readback_g": 49.4,
+  "note": "EXAMPLE. One historical measurement on the prior 1 kg fixture (50.0 g known → 49.4 g readback). Not an accuracy spec. Not evidence for a 10 kg or any new sensor. Real calibration is calib.json on the board (gitignored); re-run firmware/calibrate.py after any mounting or cell change."
+}

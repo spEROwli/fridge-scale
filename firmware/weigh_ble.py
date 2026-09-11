@@ -2,7 +2,7 @@
 #
 # Advertises as "FridgeScale" with a custom GATT service; notifies weight
 # (grams, as an ASCII string like "49.4") ~3x/sec to any connected central.
-# Consume it from the Web Bluetooth page (scale_app.html) or a native app.
+# Consume it from the Web Bluetooth page (app/index.html).
 #
 # Run:   mpremote connect /dev/cu.usbmodem14101 run weigh_ble.py
 # Deploy headless: copy to the board as main.py (ASK first — keep main_raw.py).
