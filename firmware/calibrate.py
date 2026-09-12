@@ -19,7 +19,7 @@ DT_PIN = 16
 SCK_PIN = 17
 
 # ---- SET THIS to the mass of your reference weight, in grams ----
-KNOWN_GRAMS = 200.0   # set to the reference mass on the cell you are calibrating
+KNOWN_GRAMS = 50.0   # same reference as last board calib (10 US nickels)
 
 
 def countdown(msg, secs):
