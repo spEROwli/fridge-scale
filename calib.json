@@ -1,9 +1,0 @@
-{
-  "offset": -7259,
-  "scale": 603.4384,
-  "known_g": 50.0,
-  "reference": "10 US nickels @ 5.00 g = 50.0 g",
-  "fixture": "1kg bar cell, cantilever in vise, U-channel as hook (tension); bag tared out",
-  "verified_readback_g": 49.4,
-  "note": "Fixture-specific. Re-run calibrate if the mounting/lever arm changes."
-}

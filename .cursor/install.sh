@@ -2,10 +2,9 @@
 # Idempotent dev-environment bootstrap for the Fridge Scale repo.
 #
 # What this repo actually runs:
-#   - app/index.html  : static Web Bluetooth page, served over http.server.
-#   - firmware/*.py    : MicroPython for a Pico 2 W. Not importable under
-#                        CPython (uses `machine`, `aioble`, ...), but mpremote
-#                        is the tool used to push/run it on attached hardware.
+#   - firmware/weigh_ble.py : documented working entrypoint (Pico 2 W, BLE grams)
+#   - app/index.html        : Web Bluetooth client
+#   - tools/scale_sim.py    : demo data only (secondary)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -31,11 +30,10 @@ python -m pip install mpremote
 
 # --- Sanity: firmware + tools are syntactically valid Python (byte-compile
 # --- only; hardware-only modules are not imported here). ---
-echo "==> Byte-compiling firmware/*.py and tools/*.py"
+echo "==> Byte-compiling firmware (documented path) and tools (demo, secondary)"
 python -m py_compile firmware/*.py tools/*.py
 
 echo "==> Setup complete."
-echo "    Web app  : http://localhost:8000/app/       (served by the 'web-app' terminal)"
-echo "    Web demo : http://localhost:8000/app/?demo   (simulated scale, no BLE)"
-echo "    Firmware : 'source .venv/bin/activate' then 'mpremote connect list'"
-echo "    Board sim: 'python tools/scale_sim.py --items 342.5 1015'"
+echo "    Path     : source .venv/bin/activate && mpremote run firmware/weigh_ble.py"
+echo "    Web app  : http://localhost:8000/app/"
+echo "    Demo data: tools/scale_sim.py and /app/?demo (synthetic, not sensor)"

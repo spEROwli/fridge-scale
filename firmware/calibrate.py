@@ -13,13 +13,13 @@ from machine import Pin
 from hx711_pio import HX711
 import time, json
 
-# Wiring convention (see WIRING.md): DT=GP16, SCK=GP17.
+# Wiring convention (see README, 1 kg fixture): DT=GP16, SCK=GP17.
 # NOTE constructor arg order for this driver is (SCK, DATA).
 DT_PIN = 16
 SCK_PIN = 17
 
 # ---- SET THIS to the mass of your reference weight, in grams ----
-KNOWN_GRAMS = 200.0   # e.g. a 200 g calibration weight; use something 100-500 g for a 1 kg cell
+KNOWN_GRAMS = 200.0   # set to the reference mass on the cell you are calibrating
 
 
 def countdown(msg, secs):

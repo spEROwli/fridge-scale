@@ -8,7 +8,7 @@ from machine import Pin
 from hx711_pio import HX711
 import time, json
 
-DT_PIN = 16       # GP16 (see WIRING.md); constructor order is (SCK, DATA)
+DT_PIN = 16       # GP16 (see README); constructor order is (SCK, DATA)
 SCK_PIN = 17      # GP17
 
 
